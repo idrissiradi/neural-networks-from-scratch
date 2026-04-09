@@ -17,7 +17,7 @@ The training loop has two passes:
   with respect to every parameter (weights and biases) 
   using the chain rule
   
-The gradients tell us *in which direction* each parameter 
+The gradients tell us in which direction each parameter 
 is pushing the loss. The optimizer (gradient descent) then 
 uses those gradients to update the parameters and reduce the loss.
 
