@@ -3,17 +3,16 @@
 ## What This Is Based On
 Karpathy's "The spelled-out intro to neural networks and 
 backpropagation: building micrograd"  
-https://www.youtube.com/watch?v=VMj-3S1tku0
 
 ---
 
-## Key Concepts in My Own Words
+## Key Concepts
 
 ### Backpropagation
 The training loop has two passes:
-- **Forward pass** — data flows through the network, 
+- **Forward pass**: data flows through the network, 
   we get a prediction and compute the loss
-- **Backward pass** — we compute the gradient of the loss 
+- **Backward pass**: we compute the gradient of the loss 
   with respect to every parameter (weights and biases) 
   using the chain rule
   
