@@ -8,7 +8,7 @@ built alongside.
 | ------------------ | ------ | ------------------- |
 | micrograd          | ✅      | autograd engine     |
 | makemore bigram    | ✅      | language modeling   |
-| makemore MLP       | ⏳      | deep networks       |
+| makemore MLP       | ✅      | deep networks       |
 | makemore BatchNorm | ⏳      | normalization       |
 | makemore backprop  | ⏳      | manual gradients    |
 | makemore WaveNet   | ⏳      | hierarchical models |
