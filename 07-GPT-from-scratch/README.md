@@ -6,10 +6,15 @@ Karpathy's "Let's build GPT: from scratch, in code, spelled out."
 ---
 
 ## What I Built
-A character-level language model that uses attention instead of convolutions to combine context. The model is trained to predict the next character given a context of previous characters.
+An implementation of a GPT model from scratch, following the principles outlined in Karpathy's guide. This project demonstrates the core concepts of transformer architectures and their application in natural language processing tasks.
 
 ## Key Insights
-
+- **attention mechanisms**
+- **transformer architecture**
+- **language modeling**
+- **text generation**
+- **tokenization**
+- **training process**
 
 ## Stack
 Python · PyTorch
