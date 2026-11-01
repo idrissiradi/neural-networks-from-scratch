@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 import torch
 import torch.nn as nn
+from attr import has
 from torch.nn import functional as F
 
 
@@ -182,28 +183,73 @@ class GPT(nn.Module):
 
 
 # ————————————————————————————————————————————————————————————————————————
+# attempt to autodetect the device
+device = "cpu"
+if torch.cuda.is_available():
+    device = "cuda"
+elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+    device = "mps"
+print(f"using device; {device}")
+
+# get a data batch
+import tiktoken
+
+enc = tiktoken.get_encoding("gpt2")
+
+with open("input.txt", "r") as f:
+    text = f.read()
+text = text[:1000]
+tokens = enc.encode(text)
+B, T = 4, 32
+buf = torch.tensor(tokens[: B * T + 1])
+buf = buf.to(device)
+x = buf[:-1].view(B, T)
+y = buf[1:].view(B, T)
+
+# get logits
+model = GPT(GPTConfig())
+model.to(device)
+
+# optimize
+optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
+
+for i in range(50):
+    optimizer.zero_grad()
+    logits, loss = model(x, y)
+    loss.backward()
+    optimizer.step()
+    print(f"step {i}, loss: {loss.item()}")
+
+
+import sys
+
+sys.exit(0)
+
 num_return_sequences = 5
 max_length = 30
 
-model = GPT.from_pretrained("gpt2")
+# model = GPT.from_pretrained("gpt2")
+model = GPT(GPTConfig())
 model.eval()
-model.to("cuda")
+model.to(device)
 
+
+# prefix token
 import tiktoken
 
 enc = tiktoken.get_encoding("gpt2")
 tokens = enc.encode("Hello, I'm a language model,")
 tokens = torch.tensor(tokens, dtype=torch.long)  # (8,)
-tokens = tokens.unsqueeze(0).repeat(num_return_sequences)  # (5, 8)
-x = tokens.to("cuda")
+tokens = tokens.unsqueeze(0).repeat(num_return_sequences, 1)  # (5, 8)
+x = tokens.to(device)
 
 # generate
 torch.manual_seed(42)
 torch.cuda.manual_seed(42)
 
 while x.size(1) < max_length:
-    with torch.no_grade():
-        logits = model(x)  # (B, T, vocab_size)
+    with torch.no_grad():
+        logits, _ = model(x)  # (B, T, vocab_size)
         logits = logits[:, -1, :]  # (B, vocab_size)
         probs = F.softmax(logits, dim=-1)
 
