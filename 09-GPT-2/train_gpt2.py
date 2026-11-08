@@ -280,6 +280,7 @@ class DataLoaderLite:
 
 
 from torch.distributed import destroy_process_group, init_process_group
+from torch.nn.parallel import DistributedDataParallel as DDP
 
 ddp = int(os.environ.get("RANK", -1)) != -1
 if ddp:
@@ -333,10 +334,13 @@ train_loader = DataLoaderLite(
 
 torch.set_float32_matmul_precision("high")
 
-# get logits
+# create model
 model = GPT(GPTConfig(vocab_size=50304))
 model.to(device)
 model = torch.compile(model)
+
+if ddp:
+    model = DDP(model, device_ids=[ddp_local_rank])
 
 max_lr = 6e-4
 min_lr = max_lr * 0.1
@@ -375,6 +379,8 @@ for step in range(50):
 
         loss = loss / grad_accum_steps
         loss_accum += loss.detach()
+        if ddp:
+            model.require_backward_grad_sync = micro_step == grad_accum_steps - 1
         loss.backward()
 
     norm = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
